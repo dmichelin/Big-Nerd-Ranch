@@ -34,7 +34,7 @@ import java.util.List;
 /**
  * Created by daniel on 7/5/16.
  */
-public class PhotoGalleryFragment extends Fragment {
+public class PhotoGalleryFragment extends VisibleFragment {
 
     private static final String TAG = "PhotoGalleryFragment";
 
@@ -207,7 +207,9 @@ public class PhotoGalleryFragment extends Fragment {
         }
         @Override
         protected void onPostExecute(List<GalleryItem> items){
-            miActionProgressItem.setVisible(false);
+
+            if(miActionProgressItem!=null)
+                miActionProgressItem.setVisible(false);
             mItems = items;
             System.out.println(items.size());
             setupAdapter();

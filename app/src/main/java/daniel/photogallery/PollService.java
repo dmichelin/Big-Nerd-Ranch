@@ -1,5 +1,6 @@
 package daniel.photogallery;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -21,7 +22,13 @@ import java.util.List;
 public class PollService extends android.app.IntentService {
 
     private static final String TAG = "PollService";
-    private static final long POLL_INTERVAL = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
+    private static final long POLL_INTERVAL = 60*1000;
+
+    public static final String SHOW_ACTION_NOTIFICATION = "daniel.photogallery.SHOW_NOTIFICATION";
+    public static final String PERM_PRIVATE ="daniel.photogallery.PRIVATE";
+
+    public static final String REQUEST_CODE = "REQUEST_CODE";
+    public static final String NOTIFICATION = "NOTIFICATION";
 
     public static Intent newIntent(Context context){
         return new Intent(context,PollService.class);
@@ -39,6 +46,8 @@ public class PollService extends android.app.IntentService {
             alarmManager.cancel(pi);
             pi.cancel();
         }
+
+        QueryPreferences.setAlarmOn(context,isOn);
     }
 
     /**
@@ -81,23 +90,23 @@ public class PollService extends android.app.IntentService {
         if(resultId.equals(lastResultId)){
             Log.i(TAG, "onHandleIntent: Got old result "+resultId);
         }else {
-            Log.i(TAG, "onHandleIntent: Got new result"+resultId);
-        }
-        Resources resources = getResources();
-        Intent i = PhotoGalleryActivity.newIntent(this);
-        PendingIntent pi = PendingIntent.getActivity(this, 0, i, 0);
-        Notification notification = new NotificationCompat.Builder(this)
-                .setTicker(resources.getString(R.string.new_pictures_title))
-                .setSmallIcon(android.R.drawable.ic_menu_report_image)
-                .setContentTitle(resources.getString(R.string.new_pictures_title))
-                .setContentText(resources.getString(R.string.new_pictures_text))
-                .setContentIntent(pi)
-                .setAutoCancel(true)
-                .build();
+            Resources resources = getResources();
+            Intent i = PhotoGalleryActivity.newIntent(this);
+            PendingIntent pi = PendingIntent.getActivity(this, 0, i, 0);
+            Notification notification = new NotificationCompat.Builder(this)
+                    .setTicker(resources.getString(R.string.new_pictures_title))
+                    .setSmallIcon(android.R.drawable.ic_menu_report_image)
+                    .setContentTitle(resources.getString(R.string.new_pictures_title))
+                    .setContentText(resources.getString(R.string.new_pictures_text))
+                    .setContentIntent(pi)
+                    .setAutoCancel(true)
+                    .build();
 
-        NotificationManagerCompat notificationManager =
-                NotificationManagerCompat.from(this);
-        notificationManager.notify(0, notification);
+            showBackgroundNotification(0, notification);
+            Log.i(TAG, "onHandleIntent: Got new result"+resultId);
+
+        }
+
 
         QueryPreferences.setPrefLastResultId(this,resultId);
 
@@ -129,5 +138,13 @@ public class PollService extends android.app.IntentService {
         PendingIntent pi = PendingIntent
                 .getService(context, 0, i, PendingIntent.FLAG_NO_CREATE);
         return pi != null;
+    }
+
+    private void showBackgroundNotification(int requestCode, Notification notification) {
+        Intent i = new Intent(SHOW_ACTION_NOTIFICATION);
+        i.putExtra(REQUEST_CODE, requestCode);
+        i.putExtra(NOTIFICATION, notification);
+        sendOrderedBroadcast(i, PERM_PRIVATE, null, null,
+                Activity.RESULT_OK, null, null);
     }
 }
