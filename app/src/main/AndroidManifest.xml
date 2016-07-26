@@ -21,6 +21,8 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity android:name=".PhotoPageActivity"
+                  android:configChanges="keyboardHidden|orientation|screenSize"  ></activity>
         <service android:name=".PollService" />
 
         <receiver android:name=".StartupReciever">

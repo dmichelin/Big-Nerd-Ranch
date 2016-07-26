@@ -106,6 +106,13 @@ public class FlickrFetchr {
         return items;
     }
 
+    /**
+     * Parses json objects to their
+     * @param items
+     * @param jsonBody
+     * @throws IOException
+     * @throws JSONException
+     */
     private void parseItems(List<GalleryItem> items, JSONObject jsonBody) throws IOException, JSONException{
         JSONObject photosJsonObject = jsonBody.getJSONObject("photos");
         JSONArray photoJsonArray = photosJsonObject.getJSONArray("photo");
@@ -122,7 +129,7 @@ public class FlickrFetchr {
             }
 
             item.setUrl(jsonObject.getString("url_s"));
-
+            item.setOwner(jsonObject.getString("owner"));
             items.add(item);
         }
         System.out.println("Size of gallery list: "+items.size());
